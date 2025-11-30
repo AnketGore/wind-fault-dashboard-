@@ -158,7 +158,24 @@ elif page == "Fault Detection":
     ax.set_ylabel("Power (kW)")
     st.pyplot(fig)
 
-    st.subheader(" Detected Faults")
+        st.subheader(" Detected Faults")
     fault_df = pd.DataFrame({
         "Timestamp": timestamps[-len(y_pred_rescaled):],
-        "Actual Power": y_true_rescaled[-len(y
+        "Actual Power": y_true_rescaled[-len(y_pred_rescaled):],
+        "Predicted Power": y_pred_rescaled,
+        "Residual": residuals[-len(y_pred_rescaled):],
+        "Cp": df['Power_Coefficient'].iloc[-len(y_pred_rescaled):].values,
+        "Turbulence": df['Turbulence_Intensity'].iloc[-len(y_pred_rescaled):].values,
+        "Fault": fault_flags
+    })
+    fault_df["Explanation"] = fault_df.apply(
+        lambda row: fault_explanation(row["Residual"], row["Cp"], row["Turbulence"]), axis=1
+    )
+
+    st.dataframe(fault_df[fault_df["Fault"] == True][
+        ["Timestamp", "Actual Power", "Predicted Power", "Residual", "Cp", "Turbulence", "Explanation"]
+    ])
+
+    # Optional: Download button
+    csv = fault_df[fault_df["Fault"] == True].to_csv(index=False).encode('utf-8')
+    st.download_button(" Download Fault Report", csv, "fault_report.csv", "text/csv")
