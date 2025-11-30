@@ -158,7 +158,7 @@ elif page == "Fault Detection":
     ax.set_ylabel("Power (kW)")
     st.pyplot(fig)
 
-        st.subheader(" Detected Faults")
+        st.subheader("Detected Faults")
     fault_df = pd.DataFrame({
         "Timestamp": timestamps[-len(y_pred_rescaled):],
         "Actual Power": y_true_rescaled[-len(y_pred_rescaled):],
